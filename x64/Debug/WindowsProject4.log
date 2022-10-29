@@ -1,0 +1,3 @@
+﻿  WindowsProject4.cpp
+C:\Users\JACK\source\repos\WindowsProject4\WindowsProject4.cpp(141,11): warning C4101: 'block': unreferenced local variable
+  WindowsProject4.vcxproj -> C:\Users\JACK\source\repos\WindowsProject4\x64\Debug\WindowsProject4.exe
