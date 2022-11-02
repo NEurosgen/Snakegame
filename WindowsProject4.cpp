@@ -4,6 +4,7 @@
 #include "framework.h"
 #include "WindowsProject4.h"
 #include "Header.h"
+#include <cstring>
 #define MAX_LOADSTRING 20
 
 
@@ -134,10 +135,28 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 
+    
+    static int x = 100, y = 100,h=0,flag=0,r=0,u=0,l=0,d=1,win=1,size=lon,speed=move,sizew=1,total=50;//Спавн змейки//
+    //std::string num_str = std::to_string(total);
+    static POint mas[lon*100];
+    static Wall wal[COLWALL];
+    int sx = 150;
+    int sy = 125;
    
-    static int x = 100, y = 100,h=0,flag=0,r=0,u=0,l=0,d=1,win=1,size=long;
-    static POint mas[long*100];
-    static POint ap = apple(x);
+        
+     for (int i = 0; i < COLWALL ; i++) {
+         if (i > 0 && i % 6 == 0) { sy += 100; sx = 150; }
+            wal[i].x = sx;
+            wal[i].xk = sx + 50;
+            wal[i].y = sy;
+            wal[i].yk = sy + 50;
+            sx += 100;
+
+        }
+        
+    
+    
+    static POint ap = apple(x,wal);
     POint block;
     POint base;
     base.x = 100;
@@ -145,7 +164,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     base.red = 150;
     base.green = 0;
     base.blue = 0;
-    
+
+    LPCWSTR ho = L"TOTAL";
     
     switch (message)
     {
@@ -178,37 +198,50 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         if (wParam == VK_LEFT && r!=1) { u = 0; d = 0; l = 1; r = 0; }
 
     case WM_PAINT:
-        {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
-            Phone(hdc);
-            Rectangle(hdc, LOCALX, LOCALY, X, Y);
-            if (l) { x -= move;  }
-            if (u) { y -= move; }
-            if (d) {y += move; }
-            if (r) { x += move; }
-           
+    {
+        PAINTSTRUCT ps;
+        HDC hdc = BeginPaint(hWnd, &ps);
+        Phone(hdc);
+        Rectangle(hdc, LOCALX, LOCALY, X, Y);
+        if (l) { x -= speed; }
+        if (u) { y -= speed; }
+        if (d) { y += speed; }
+        if (r) { x += speed; }
 
-            if (flag == 0) {
-                
-                for (int i = 0; i < size; i++) {
-                    base.x = x + i * 8;
-                    
-                    mas[i] = base;
-                }
-                flag++;
+       
+
+        if (flag == 0) {
+            
+              
+            for (int i = 0; i < size; i++) {
+                base.x = x + i * wheght;
+
+                mas[i] = base;
             }
+            flag++;
+        }
 
-            ap.hdc = hdc;
-            Bline(ap);
+        ap.hdc = hdc;
+        Bline(ap);
+        for (int i = 0; i < COLWALL; ++i) {
+            wal[i].hdc = hdc;
+            wall(wal[i]);
+        }
 
-            snake(hdc,x,y,mas,size);
-            if (x<LOCALX || x>X || y<LOCALY || y>Y) { size = 0; }
+        snake(hdc, x, y, mas, size,wal);
+        //if (x<LOCALX || x>X || y<LOCALY || y>Y) { size = 0; }
+        if (x < LOCALX) { x = X; }
+        if (x > X) { x = LOCALX; } 
+        if (y < LOCALY) {y = Y; }
+        if (y > Y) { y = LOCALY; }
+
             if (if1(x,y,ap,mas)|| if2(x, y, ap, mas)|| if3(x, y, ap, mas)|| if4(x, y, ap, mas)) {
                 add(mas, size);
-                ap = apple(x);
+                speed = speed+0;
+                ap = apple(x,wal);
+                
             }
-            Sleep(20);
+            Sleep(15);
             if (win) {
                 InvalidateRect(hWnd, NULL, 1);
             }

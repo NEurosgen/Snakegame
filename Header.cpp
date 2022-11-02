@@ -2,21 +2,34 @@
 #include<random>
 
 #include "WindowsX.h"
-#define long 5
-#define move 8
+#define lon 5
+#define move 1
 #define wheght 8
-#define X 800
-#define Y 600
+#define X 400
+#define Y 400
 #define LOCALX 100
 #define LOCALY 100
+#define COLWALL 300
+
 struct POint {
     HDC hdc;
     int x;
     int y;
+    int xk;
+    int yk;
     int red=0;
     int green=0;
     int blue=0;
 
+};
+struct Wall {
+    HDC hdc;
+    int x;
+    int y;
+    int xk;
+    int yk;
+    int red = 0; int blue = 0;
+    int green = 0;
 };
 
 void line(POint li) {
@@ -28,6 +41,7 @@ void line(POint li) {
     FillRect(li.hdc, &size, bruh);
     DeleteObject(bruh);
 }
+bool inaarea(POint* mas, int x1, int y1, int x1k, int y1k);
 void wrog(int x, int y, POint* mas, int& size);
 void Bline(POint li) {
     int whize = wheght*2;
@@ -38,14 +52,19 @@ void Bline(POint li) {
     FillRect(li.hdc, &size, bruh);
     DeleteObject(bruh);
 }
-void snake(HDC hdc, int  x, int  y, POint* mas, int& size) {
+void snake(HDC hdc, int  x, int  y, POint* mas, int& size,Wall* wal) {
     mas[0].hdc = hdc;
 
     mas[0].x = x;
     mas[0].y = y;
     line(mas[0]);
     wrog(x, y, mas, size);
-
+    for (int i = 0; i < COLWALL; i++) {
+        if (not(inaarea(mas, wal[i].x, wal[i].y, wal[i].xk, wal[i].yk))) {
+            size = 0;
+            return;
+        }
+    }
     POint block;
     for (int i = size - 1; i >= 1; i--) {
         block = mas[i];
@@ -82,19 +101,19 @@ void snake(HDC hdc, int  x, int  y, POint* mas, int& size) {
 
 }
 void add(POint* mas, int& size) {
-    if (long* 100 > size) {
+    if (lon* 100 > size) {
         POint chage = mas[size - 1];
         if (mas[size - 2].x < mas[size - 1].x) {
-            chage.x += move;
+            chage.x += wheght;
         }
         if (mas[size - 2].x > mas[size - 1].x) {
-            chage.x -= move;
+            chage.x -= wheght;
         }
         if (mas[size - 2].y < mas[size - 1].x) {
-            chage.y -= move;
+            chage.y -= wheght;
         }
         if (mas[size - 2].y > mas[size - 1].x) {
-            chage.y += move;
+            chage.y += wheght;
         }
         mas[size] = chage;
         size++;
@@ -115,13 +134,30 @@ void wrog(int x, int y, POint* mas, int& size) {
         }
     }
 }
-POint  apple(int s) {
+POint  apple(int s, Wall* wal) {
     POint apple;
-    unsigned int k = s;
-    
+    unsigned int k = s / 2;
+    POint bas;
     srand(k);
-    apple.x = (rand() %( X/2)+LOCALX);
-    apple.y = (rand() % (Y/2)+LOCALY);
+    apple.x = (rand() % (X - LOCALX) + LOCALX);
+    apple.y = (rand() % (Y - LOCALY) + LOCALY);
+    int d = 1;
+    while (d == 1) {
+        srand(k);
+        (bas).x = apple.x;
+        (bas).y = apple.y;
+        for (int i = 0; i < COLWALL; i++) {
+            
+            if (not(inaarea(&bas, wal[i].x, wal[i].y, wal[i].xk, wal[i].yk))) {
+                apple.x = (rand() % (X - LOCALX) + LOCALX);
+                apple.y = (rand() % (Y - LOCALY) + LOCALY);
+                k++;
+                d = 1; break;
+            }
+            d = 0;
+        }
+    }
+    
     apple.green = 200;
     
     return apple;
@@ -139,4 +175,17 @@ bool if3(int x, int y, POint ap, POint* mas) {
 }
 bool if4(int x, int y, POint ap, POint* mas) {
     return (mas[0].x+ wheght >= ap.x && mas[0].x + wheght <= ap.x + wheght * 2 && mas[0].y + wheght >= ap.y && mas[0].y+ wheght <= ap.y + wheght * 2);
+}
+void wall(Wall base) {
+
+    RECT size = { base.x,base.y,base.xk,base.yk };
+    HBRUSH bruh = CreateSolidBrush(RGB(250, 100, 150));
+    Rectangle(base.hdc, base.x-1, base.y-1, base.xk+1, base.yk+1);
+    FillRect(base.hdc, &size, bruh);
+    
+    DeleteObject(bruh);
+    POint wall;
+}
+bool inaarea(POint*mas, int x1, int y1, int x1k, int y1k) {
+    return ((mas[0].x < x1 ||mas[0].x>x1k ||((mas[0]).y<y1||mas[0].y>y1k))&& (mas[0].x+wheght < x1 || mas[0].x+wheght>x1k || ((mas[0]).y<y1 || mas[0].y>y1k))&& (mas[0].x < x1 || mas[0].x>x1k || (((mas[0]).y+wheght)<y1 || (mas[0].y+wheght)>y1k))&& (mas[0].x+ wheght < x1 || mas[0].x+ wheght>x1k || ((mas[0]).y+ wheght<y1 || mas[0].y+ wheght>y1k)));
 }
